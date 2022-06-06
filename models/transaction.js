@@ -19,6 +19,20 @@ module.exports = {
         const client = await Database.getClient();
         const data = await client.query("UPDATE transactions SET status=$1 WHERE id=$2", [status, id]);
         return data;
+    },
+
+    getFirstTransaction: async ( clientId ) => {
+        const client = await Database.getClient();
+        const data = await client.query("SELECT * FROM transactions WHERE client_id=$1" +
+            "AND status='IN_QUEUE' ORDER BY id ASC LIMIT 1",
+            [clientId]);
+        return data.rows[0];
+    },
+
+    getQueues: async () => {
+        const client = await Database.getClient();
+        const data = await client.query("SELECT DISTINCT client_id FROM transactions WHERE status='IN_QUEUE'");
+        return data.rows.map(e => e.client_id);
     }
 
 }
